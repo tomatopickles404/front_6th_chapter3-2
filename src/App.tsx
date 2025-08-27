@@ -30,12 +30,12 @@ import {
 import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 
+import { RepeatEventIcon } from './components/RepeatEventIcon';
 import { useCalendarView } from './hooks/useCalendarView.ts';
 import { useEventForm } from './hooks/useEventForm.ts';
 import { useEventOperations } from './hooks/useEventOperations.ts';
 import { useNotifications } from './hooks/useNotifications.ts';
 import { useSearch } from './hooks/useSearch.ts';
-// import { Event, EventForm, RepeatType } from './types';
 import { Event, EventForm } from './types';
 import {
   formatDate,
@@ -77,11 +77,8 @@ function App() {
     isRepeating,
     setIsRepeating,
     repeatType,
-    // setRepeatType,
     repeatInterval,
-    // setRepeatInterval,
     repeatEndDate,
-    // setRepeatEndDate,
     notificationTime,
     setNotificationTime,
     startTimeError,
@@ -201,6 +198,11 @@ function App() {
                           >
                             <Stack direction="row" spacing={1} alignItems="center">
                               {isNotified && <Notifications fontSize="small" />}
+                              <RepeatEventIcon
+                                repeatType={event.repeat.type}
+                                interval={event.repeat.interval}
+                                endDate={event.repeat.endDate}
+                              />
                               <Typography
                                 variant="caption"
                                 noWrap
@@ -288,6 +290,11 @@ function App() {
                                 >
                                   <Stack direction="row" spacing={1} alignItems="center">
                                     {isNotified && <Notifications fontSize="small" />}
+                                    <RepeatEventIcon
+                                      repeatType={event.repeat.type}
+                                      interval={event.repeat.interval}
+                                      endDate={event.repeat.endDate}
+                                    />
                                     <Typography
                                       variant="caption"
                                       noWrap
