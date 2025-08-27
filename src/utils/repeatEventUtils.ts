@@ -16,22 +16,32 @@ export const generateRepeatDates = (event: RepeatEventInput): string[] => {
     return generateDailyRepeatDates(event);
   }
 
+  if (repeatType === 'weekly') {
+    return generateWeeklyRepeatDates(event);
+  }
+
   // 4. 결과 반환
 };
 
-const generateDailyRepeatDates = (event: RepeatEventInput): string[] => {
-  const { date, interval, endDate } = event;
-
+const generateRepeatDatesForType = (event: RepeatEventInput, incrementDays: number): string[] => {
+  const { date, endDate } = event;
   const repeatDates: string[] = [];
-
   const start = new Date(date);
   const end = new Date(endDate);
 
   while (start <= end) {
     repeatDates.push(start.toISOString().split('T')[0]);
-    start.setDate(start.getDate() + interval);
+    start.setDate(start.getDate() + incrementDays);
   }
 
   return repeatDates;
+};
+
+const generateDailyRepeatDates = (event: RepeatEventInput): string[] => {
+  return generateRepeatDatesForType(event, event.interval);
+};
+
+const generateWeeklyRepeatDates = (event: RepeatEventInput): string[] => {
+  return generateRepeatDatesForType(event, event.interval * 7);
 };
 };
