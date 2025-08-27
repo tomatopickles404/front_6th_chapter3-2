@@ -1,4 +1,4 @@
-import { generateRepeatDates } from '../../utils/repeatEvent';
+import { generateRepeatDates } from '../../utils/repeatEventUtils';
 
 describe('반복 일정 생성 테스트', () => {
   describe('매월 반복', () => {
