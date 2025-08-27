@@ -8,6 +8,30 @@ interface RepeatEventInput {
 }
 
 export const generateRepeatDates = (event: RepeatEventInput): string[] => {
-  // TODO: 반복 일정 생성 로직 구현
-  throw new Error('Not implemented yet');
+  const { repeatType } = event;
+  // 1. 입력 유효성 검사
+  // 2. 시작일과 종료일 비교
+  // 3. 반복 유형별 날짜 생성
+  if (repeatType === 'daily') {
+    return generateDailyRepeatDates(event);
+  }
+
+  // 4. 결과 반환
+};
+
+const generateDailyRepeatDates = (event: RepeatEventInput): string[] => {
+  const { date, interval, endDate } = event;
+
+  const repeatDates: string[] = [];
+
+  const start = new Date(date);
+  const end = new Date(endDate);
+
+  while (start <= end) {
+    repeatDates.push(start.toISOString().split('T')[0]);
+    start.setDate(start.getDate() + interval);
+  }
+
+  return repeatDates;
+};
 };
