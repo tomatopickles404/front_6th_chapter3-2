@@ -1,4 +1,4 @@
-import { RepeatInfo } from '../types';
+import { RepeatInfo, Event } from '../types';
 
 interface RepeatEventInput {
   date: string;
@@ -143,4 +143,23 @@ const formatDate = (date: Date): string => {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+};
+
+// 반복 일정인지 확인하는 함수
+export const isRepeatEvent = (event: Event): boolean => {
+  return event.repeat.type !== 'none';
+};
+
+// 반복 일정을 단일 수정 이벤트로 생성하는 함수
+export const createSingleEditEvent = (originalEvent: Event, targetDate: string): Event => {
+  return {
+    ...originalEvent,
+    id: `${originalEvent.id}-single-edit-${targetDate}`,
+    date: targetDate,
+    repeat: {
+      type: 'none',
+      interval: 1,
+      endDate: undefined,
+    },
+  };
 };
