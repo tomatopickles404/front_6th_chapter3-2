@@ -342,6 +342,33 @@ it('notificationTime을 10으로 하면 지정 시간 10분 전 알람 텍스트
 });
 
 describe('반복 일정 통합 기능', () => {
+  it('반복 일정 체크박스가 존재한다', async () => {
+    setup(<App />);
+
+    // 반복 일정 체크박스가 존재해야 함
+    expect(screen.getByLabelText('반복 일정')).toBeInTheDocument();
+  });
+
+  it('반복 일정 체크박스 클릭 후 상태를 확인한다', async () => {
+    const { user } = setup(<App />);
+
+    // 반복 일정 체크박스 클릭
+    const repeatCheckbox = screen.getByLabelText('반복 일정');
+    expect(repeatCheckbox).toBeInTheDocument();
+
+    // 클릭 전 상태 확인
+    expect(repeatCheckbox).not.toBeChecked();
+
+    // 클릭
+    await user.click(repeatCheckbox);
+
+    // 클릭 후 상태 확인
+    expect(repeatCheckbox).toBeChecked();
+
+    // 현재 DOM 상태 출력 (디버깅용)
+    console.log('Current DOM after checkbox click:', document.body.innerHTML);
+  });
+
   it('반복 일정 체크박스를 클릭하면 반복 설정 UI가 표시된다', async () => {
     const { user } = setup(<App />);
 
