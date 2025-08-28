@@ -4,18 +4,19 @@ import {
   isRepeatingEvent,
   getRepeatDisplayInfo,
 } from '../../utils/eventStateUtils';
+import { createEvent } from '../../utils/eventUtils';
 
 describe('반복 일정 판별 함수 테스트', () => {
   it('반복 일정을 올바르게 판별한다', () => {
-    const repeatingEvent = { repeat: { type: 'weekly', interval: 1 } };
-    const singleEvent = { repeat: { type: 'none', interval: 1 } };
+    const repeatingEvent = createEvent('repeating', 'weekly', 1);
+    const singleEvent = createEvent('single', 'none', 1);
 
     expect(isRepeatingEvent(repeatingEvent)).toBe(true);
     expect(isRepeatingEvent(singleEvent)).toBe(false);
   });
 
   it('반복 일정 표시 정보를 올바르게 생성한다', () => {
-    const weeklyEvent = { repeat: { type: 'weekly', interval: 2 } };
+    const weeklyEvent = createEvent('repeating', 'weekly', 2);
     const result = getRepeatDisplayInfo(weeklyEvent);
 
     expect(result.isRepeating).toBe(true);
@@ -24,7 +25,7 @@ describe('반복 일정 판별 함수 테스트', () => {
   });
 
   it('단일 일정의 경우 아이콘을 표시하지 않는다', () => {
-    const singleEvent = { repeat: { type: 'none', interval: 1 } };
+    const singleEvent = createEvent('single', 'none', 1);
     const result = getRepeatDisplayInfo(singleEvent);
 
     expect(result.isRepeating).toBe(false);
@@ -36,9 +37,9 @@ describe('반복 일정 판별 함수 테스트', () => {
 describe('반복 일정 필터링 함수 테스트', () => {
   it('반복 일정만 필터링한다', () => {
     const events = [
-      { repeat: { type: 'weekly', interval: 1 } },
-      { repeat: { type: 'none', interval: 1 } },
-      { repeat: { type: 'monthly', interval: 1 } },
+      createEvent('repeating', 'weekly', 1),
+      createEvent('single', 'none', 1),
+      createEvent('repeating', 'monthly', 1),
     ];
 
     const repeatingEvents = getRepeatingEvents(events);
@@ -47,9 +48,9 @@ describe('반복 일정 필터링 함수 테스트', () => {
 
   it('반복 유형별로 일정을 그룹화한다', () => {
     const events = [
-      { repeat: { type: 'weekly', interval: 1 } },
-      { repeat: { type: 'monthly', interval: 1 } },
-      { repeat: { type: 'weekly', interval: 2 } },
+      createEvent('repeating', 'weekly', 1),
+      createEvent('repeating', 'monthly', 1),
+      createEvent('repeating', 'weekly', 2),
     ];
 
     const groups = groupEventsByRepeatType(events);
