@@ -79,28 +79,11 @@ const generateMonthlyRepeatDates = (event: RepeatEventInput): string[] => {
     let nextYear = currentDate.getFullYear() + Math.floor(nextMonth / 12);
     nextMonth = nextMonth % 12;
 
-    // 원래 날짜가 다음 달에 존재하지 않는 경우 해당 달을 건너뛰기
+    // 원래 날짜가 다음 달에 존재하지 않는 경우 해당 달의 마지막 날로 설정
     const lastDayOfNextMonth = getLastDayOfMonth(nextYear, nextMonth);
+    const nextDay = Math.min(originalDay, lastDayOfNextMonth);
 
-    if (originalDay > lastDayOfNextMonth) {
-      // 해당 달을 건너뛰고 다음 달의 같은 날짜로 설정
-      nextMonth = nextMonth + 1;
-      if (nextMonth >= 12) {
-        nextMonth = 0;
-        nextYear += 1;
-      }
-
-      // 다음 달도 원래 날짜가 없으면 계속 건너뛰기
-      while (getLastDayOfMonth(nextYear, nextMonth) < originalDay) {
-        nextMonth += 1;
-        if (nextMonth >= 12) {
-          nextMonth = 0;
-          nextYear += 1;
-        }
-      }
-    }
-
-    const nextDate = new Date(nextYear, nextMonth, originalDay);
+    const nextDate = new Date(nextYear, nextMonth, nextDay);
 
     // endDate를 초과하면 종료
     if (nextDate > endDate) {
@@ -126,20 +109,11 @@ const generateYearlyRepeatDates = (event: RepeatEventInput): string[] => {
     // 다음 해 계산
     let nextYear = currentDate.getFullYear() + event.interval;
 
-    // 원래 날짜가 다음 해에 존재하지 않는 경우 해당 해를 건너뛰기
+    // 원래 날짜가 다음 해에 존재하지 않는 경우 해당 해의 마지막 날로 설정
     const lastDayOfNextMonth = getLastDayOfMonth(nextYear, originalMonth);
+    const nextDay = Math.min(originalDay, lastDayOfNextMonth);
 
-    if (originalDay > lastDayOfNextMonth) {
-      // 해당 해를 건너뛰고 다음 해의 같은 날짜로 설정
-      nextYear += 1;
-
-      // 다음 해도 원래 날짜가 없으면 계속 건너뛰기
-      while (getLastDayOfMonth(nextYear, originalMonth) < originalDay) {
-        nextYear += 1;
-      }
-    }
-
-    const nextDate = new Date(nextYear, originalMonth, originalDay);
+    const nextDate = new Date(nextYear, originalMonth, nextDay);
 
     // endDate를 초과하면 종료
     if (nextDate > endDate) {

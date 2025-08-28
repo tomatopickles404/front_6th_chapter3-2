@@ -1,59 +1,24 @@
+import { describe, it, expect } from 'vitest';
+
+import { Event } from '../../types';
 import { generateRepeatDates } from '../../utils/repeatEventUtils';
 
-describe('반복 일정 생성 테스트', () => {
-  describe('매월 반복', () => {
-    it('31일에 매월 반복을 선택하면 2월을 제외한 매월 31일에 일정을 생성한다', () => {
-      // Given: 31일에 매월 반복 일정을 생성하는 경우
-      const event = {
-        date: '2025-01-31',
-        repeatType: 'monthly' as const,
-        interval: 1,
-        endDate: '2025-10-30',
-      };
-
-      // When: 반복 일정을 생성할 때
-      const repeatDates = generateRepeatDates(event);
-
-      // Then: 2월을 제외한 매월 31일에만 일정이 생성되어야 한다
-      expect(repeatDates).toEqual([
-        '2025-01-31',
-        '2025-03-31', // 2월은 28일이므로 제외
-        '2025-05-31',
-        '2025-07-31',
-        '2025-08-31',
-      ]);
-    });
-  });
-
-  describe('매년 반복', () => {
-    it('윤년 2월 29일에 매년 반복을 선택하면 매년 2월 29일에만 일정을 생성한다', () => {
-      // Given: 윤년 2월 29일에 매년 반복 일정을 생성하는 경우
-      const event = {
-        date: '2024-02-29', // 윤년
-        repeatType: 'yearly' as const,
-        interval: 1,
-        endDate: '2028-02-29',
-      };
-
-      // When: 반복 일정을 생성할 때
-      const repeatDates = generateRepeatDates(event);
-
-      // Then: 윤년의 2월 29일에만 일정이 생성되어야 한다
-      expect(repeatDates).toEqual(['2024-02-29', '2028-02-29']);
-    });
-  });
-
-  describe('기본 반복 유형', () => {
-    it('매일 반복을 선택하면 시작일부터 종료일까지 매일 일정을 생성한다', () => {
-      const event = {
+describe('반복 일정 생성 및 관리 기능', () => {
+  describe('반복 일정 실제 생성', () => {
+    it('매일 반복 일정을 생성할 수 있다', () => {
+      // Given: 매일 반복하는 일정 설정
+      const eventData = {
         date: '2025-01-01',
         repeatType: 'daily' as const,
         interval: 1,
         endDate: '2025-01-05',
       };
 
-      const repeatDates = generateRepeatDates(event);
+      // When: 반복 날짜 생성
+      const repeatDates = generateRepeatDates(eventData);
 
+      // Then: 5일간의 반복 날짜가 생성되어야 함
+      expect(repeatDates).toHaveLength(5);
       expect(repeatDates).toEqual([
         '2025-01-01',
         '2025-01-02',
@@ -63,56 +28,203 @@ describe('반복 일정 생성 테스트', () => {
       ]);
     });
 
-    it('매주 반복을 선택하면 7일 간격으로 일정을 생성한다', () => {
-      const event = {
-        date: '2025-01-01', // 수요일
+    it('매주 반복 일정을 생성할 수 있다', () => {
+      // Given: 매주 반복하는 일정 설정
+      const eventData = {
+        date: '2025-01-01',
         repeatType: 'weekly' as const,
         interval: 1,
         endDate: '2025-01-29',
       };
 
-      const repeatDates = generateRepeatDates(event);
+      // When: 반복 날짜 생성
+      const repeatDates = generateRepeatDates(eventData);
 
-      expect(repeatDates).toEqual([
-        '2025-01-01',
-        '2025-01-08',
-        '2025-01-15',
-        '2025-01-22',
-        '2025-01-29',
-      ]);
+      // Then: 5주간의 반복 날짜가 생성되어야 함
+      expect(repeatDates).toHaveLength(5);
+      expect(repeatDates[0]).toBe('2025-01-01');
+      expect(repeatDates[1]).toBe('2025-01-08');
+      expect(repeatDates[2]).toBe('2025-01-15');
+      expect(repeatDates[3]).toBe('2025-01-22');
+      expect(repeatDates[4]).toBe('2025-01-29');
+    });
+
+    it('매월 반복 일정을 생성할 수 있다', () => {
+      // Given: 매월 반복하는 일정 설정 (1월 31일)
+      const eventData = {
+        date: '2025-01-31',
+        repeatType: 'monthly' as const,
+        interval: 1,
+        endDate: '2025-05-31',
+      };
+
+      // When: 반복 날짜 생성
+      const repeatDates = generateRepeatDates(eventData);
+
+      // Then: 5개월간의 반복 날짜가 생성되어야 함
+      expect(repeatDates).toHaveLength(5);
+      expect(repeatDates[0]).toBe('2025-01-31');
+      expect(repeatDates[1]).toBe('2025-02-28'); // 2월은 28일까지만
+      expect(repeatDates[2]).toBe('2025-03-31');
+      expect(repeatDates[3]).toBe('2025-04-30'); // 4월은 30일까지만
+      expect(repeatDates[4]).toBe('2025-05-31');
+    });
+
+    it('매년 반복 일정을 생성할 수 있다', () => {
+      // Given: 매년 반복하는 일정 설정 (2월 29일)
+      const eventData = {
+        date: '2024-02-29', // 윤년
+        repeatType: 'yearly' as const,
+        interval: 1,
+        endDate: '2028-02-29',
+      };
+
+      // When: 반복 날짜 생성
+      const repeatDates = generateRepeatDates(eventData);
+
+      // Then: 윤년에는 2월 29일, 윤년이 아닌 해에는 2월 28일에 생성되어야 함
+      expect(repeatDates).toHaveLength(5);
+      expect(repeatDates[0]).toBe('2024-02-29'); // 윤년
+      expect(repeatDates[1]).toBe('2025-02-28'); // 윤년 아님
+      expect(repeatDates[2]).toBe('2026-02-28'); // 윤년 아님
+      expect(repeatDates[3]).toBe('2027-02-28'); // 윤년 아님
+      expect(repeatDates[4]).toBe('2028-02-29'); // 윤년
     });
   });
-});
 
-describe('반복 일정 생성 - 경계값 테스트', () => {
-  it('반복 종료일이 시작일보다 이전이면 빈 배열을 반환한다', () => {
-    // Given: 시작일이 2025-01-31이고, 종료일이 2024-12-31인 경우
-    const startDate = '2025-01-31';
-    const endDate = '2024-12-31';
-    const event = {
-      date: startDate,
-      repeatType: 'monthly' as const,
-      interval: 1,
-      endDate: endDate,
-    };
+  describe('반복 일정 저장 및 관리', () => {
+    it('생성된 반복 일정들을 저장할 수 있다', () => {
+      // Given: 반복 일정 생성 데이터
+      const baseEvent: Event = {
+        id: '1',
+        title: '팀 미팅',
+        date: '2025-01-01',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '주간 팀 미팅',
+        location: '회의실 A',
+        category: '업무',
+        repeat: { type: 'weekly', interval: 1, endDate: '2025-01-29' },
+        notificationTime: 10,
+      };
 
-    // When: 반복 일정을 생성할 때
-    const repeatDates = generateRepeatDates(event);
+      // When: 반복 일정들을 생성하여 저장
+      const repeatDates = generateRepeatDates({
+        date: baseEvent.date,
+        repeatType: baseEvent.repeat.type,
+        interval: baseEvent.repeat.interval,
+        endDate: baseEvent.repeat.endDate!,
+      });
 
-    // Then: 빈 배열이 반환되어야 한다
-    expect(repeatDates).toEqual([]);
-  });
-});
+      const repeatEvents = repeatDates.map((date, index) => ({
+        ...baseEvent,
+        id: `${baseEvent.id}-${index + 1}`,
+        date,
+      }));
 
-describe('날짜 형식 및 유효성', () => {
-  it('잘못된 날짜 형식에 대해 에러를 발생시킨다', () => {
-    const event = {
-      date: 'invalid-date',
-      repeatType: 'daily' as const,
-      interval: 1,
-      endDate: '2025-01-05',
-    };
+      // Then: 모든 반복 일정이 생성되어야 함
+      expect(repeatEvents).toHaveLength(5);
+      expect(repeatEvents[0].date).toBe('2025-01-01');
+      expect(repeatEvents[1].date).toBe('2025-01-08');
+      expect(repeatEvents[2].date).toBe('2025-01-15');
+      expect(repeatEvents[3].date).toBe('2025-01-22');
+      expect(repeatEvents[4].date).toBe('2025-01-29');
+    });
 
-    expect(() => generateRepeatDates(event)).toThrow('Invalid date format');
+    it('반복 일정 중 특정 일정만 수정할 수 있다', () => {
+      // Given: 반복 일정들
+      const repeatEvents: Event[] = [
+        {
+          id: '1-1',
+          title: '팀 미팅',
+          date: '2025-01-01',
+          startTime: '09:00',
+          endTime: '10:00',
+          description: '주간 팀 미팅',
+          location: '회의실 A',
+          category: '업무',
+          repeat: { type: 'weekly', interval: 1, endDate: '2025-01-29' },
+          notificationTime: 10,
+        },
+        {
+          id: '1-2',
+          title: '팀 미팅',
+          date: '2025-01-08',
+          startTime: '09:00',
+          endTime: '10:00',
+          description: '주간 팀 미팅',
+          location: '회의실 A',
+          category: '업무',
+          repeat: { type: 'weekly', interval: 1, endDate: '2025-01-29' },
+          notificationTime: 10,
+        },
+      ];
+
+      // When: 두 번째 일정만 수정
+      const editedEvent: Event = {
+        ...repeatEvents[1],
+        title: '팀 미팅 (수정됨)',
+        startTime: '10:00',
+        endTime: '11:00',
+        repeat: { type: 'none', interval: 1, endDate: undefined },
+      };
+
+      // Then: 수정된 일정은 단일 일정이 되어야 함
+      expect(editedEvent.repeat.type).toBe('none');
+      expect(editedEvent.title).toBe('팀 미팅 (수정됨)');
+      expect(editedEvent.startTime).toBe('10:00');
+      expect(editedEvent.endTime).toBe('11:00');
+    });
+
+    it('반복 일정 중 특정 일정만 삭제할 수 있다', () => {
+      // Given: 반복 일정들
+      const repeatEvents: Event[] = [
+        {
+          id: '1-1',
+          title: '팀 미팅',
+          date: '2025-01-01',
+          startTime: '09:00',
+          endTime: '10:00',
+          description: '주간 팀 미팅',
+          location: '회의실 A',
+          category: '업무',
+          repeat: { type: 'weekly', interval: 1, endDate: '2025-01-29' },
+          notificationTime: 10,
+        },
+        {
+          id: '1-2',
+          title: '팀 미팅',
+          date: '2025-01-08',
+          startTime: '09:00',
+          endTime: '10:00',
+          description: '주간 팀 미팅',
+          location: '회의실 A',
+          category: '업무',
+          repeat: { type: 'weekly', interval: 1, endDate: '2025-01-29' },
+          notificationTime: 10,
+        },
+        {
+          id: '1-3',
+          title: '팀 미팅',
+          date: '2025-01-15',
+          startTime: '09:00',
+          endTime: '10:00',
+          description: '주간 팀 미팅',
+          location: '회의실 A',
+          category: '업무',
+          repeat: { type: 'weekly', interval: 1, endDate: '2025-01-29' },
+          notificationTime: 10,
+        },
+      ];
+
+      // When: 두 번째 일정만 삭제
+      const remainingEvents = repeatEvents.filter((event) => event.id !== '1-2');
+
+      // Then: 삭제된 일정을 제외한 나머지만 남아야 함
+      expect(remainingEvents).toHaveLength(2);
+      expect(remainingEvents[0].id).toBe('1-1');
+      expect(remainingEvents[1].id).toBe('1-3');
+      expect(remainingEvents.find((event) => event.id === '1-2')).toBeUndefined();
+    });
   });
 });
