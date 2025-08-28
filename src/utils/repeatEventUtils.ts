@@ -163,3 +163,8 @@ export const createSingleEditEvent = (originalEvent: Event, targetDate: string):
     },
   };
 };
+
+// 반복 일정 중 특정 일정만 삭제하는 함수
+export const deleteSingleRepeatEvent = (events: Event[], eventIdToDelete: string): Event[] => {
+  return events.filter((event) => event.id !== eventIdToDelete);
+};
