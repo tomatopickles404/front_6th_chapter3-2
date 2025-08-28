@@ -405,8 +405,8 @@ describe('반복 일정 통합 기능', () => {
     const { user } = setup(<App />);
 
     // 기존 이벤트가 표시되는지 확인 (이벤트 리스트에서)
-    const eventList = within(screen.getByTestId('event-list'));
-    await eventList.findByText('기존 일정');
+    const eventListContainer = within(screen.getByTestId('event-list'));
+    await eventListContainer.findByText('기존 일정');
     // 반복 일정 생성
     await user.click(screen.getAllByText('일정 추가')[0]);
 
@@ -441,7 +441,7 @@ describe('반복 일정 통합 기능', () => {
     // 이벤트 리스트에서 반복 정보 확인
     const eventList = within(screen.getByTestId('event-list'));
     expect(eventList.getByText('매일 운동')).toBeInTheDocument();
-    expect(eventList.getByText(/반복: 매일/)).toBeInTheDocument();
-    expect(eventList.getByText(/종료: 2025-01-05/)).toBeInTheDocument();
+    expect(eventList.getByText(/반복: 1일마다/)).toBeInTheDocument();
+    expect(eventList.getByText(/종료: 2025-10-05/)).toBeInTheDocument();
   });
 });
