@@ -46,11 +46,14 @@ describe('이벤트 반복 설정 업데이트 유틸리티 테스트', () => {
       const event = createEvent('repeating', 'weekly', 2);
       const updatedEvent = updateEventRepeat(event, { type: 'none', interval: 1 });
 
-      // 핵심 필드만 확인
-      expect(updatedEvent.title).toBe('테스트');
+      expect(updatedEvent.title).toBe('Repeating Event weekly 2');
       expect(updatedEvent.date).toBe('2025-01-01');
       expect(updatedEvent.startTime).toBe('09:00');
       expect(updatedEvent.endTime).toBe('10:00');
+      expect(updatedEvent.description).toBe('');
+      expect(updatedEvent.location).toBe('');
+      expect(updatedEvent.category).toBe('업무');
+      expect(updatedEvent.notificationTime).toBe(0);
     });
   });
 
