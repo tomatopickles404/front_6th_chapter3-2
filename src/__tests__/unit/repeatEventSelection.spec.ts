@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import { RepeatType } from '../../types';
 
 describe('반복 유형 선택 기능', () => {

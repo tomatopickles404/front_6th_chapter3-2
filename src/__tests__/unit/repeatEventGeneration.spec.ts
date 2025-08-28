@@ -55,19 +55,19 @@ describe('반복 일정 생성 및 관리 기능', () => {
         date: '2025-01-31',
         repeatType: 'monthly' as const,
         interval: 1,
-        endDate: '2025-05-31',
+        endDate: '2025-08-31',
       };
 
       // When: 반복 날짜 생성
       const repeatDates = generateRepeatDates(eventData);
 
-      // Then: 5개월간의 반복 날짜가 생성되어야 함
+      // Then: 31일이 있는 달에만 생성되어야 함 (2월, 4월, 6월은 건너뛰기)
       expect(repeatDates).toHaveLength(5);
       expect(repeatDates[0]).toBe('2025-01-31');
-      expect(repeatDates[1]).toBe('2025-02-28'); // 2월은 28일까지만
-      expect(repeatDates[2]).toBe('2025-03-31');
-      expect(repeatDates[3]).toBe('2025-04-30'); // 4월은 30일까지만
-      expect(repeatDates[4]).toBe('2025-05-31');
+      expect(repeatDates[1]).toBe('2025-03-31'); // 2월 건너뛰기
+      expect(repeatDates[2]).toBe('2025-05-31'); // 4월 건너뛰기
+      expect(repeatDates[3]).toBe('2025-07-31'); // 6월 건너뛰기
+      expect(repeatDates[4]).toBe('2025-08-31');
     });
 
     it('매년 반복 일정을 생성할 수 있다', () => {
@@ -82,13 +82,11 @@ describe('반복 일정 생성 및 관리 기능', () => {
       // When: 반복 날짜 생성
       const repeatDates = generateRepeatDates(eventData);
 
-      // Then: 윤년에는 2월 29일, 윤년이 아닌 해에는 2월 28일에 생성되어야 함
-      expect(repeatDates).toHaveLength(5);
-      expect(repeatDates[0]).toBe('2024-02-29'); // 윤년
-      expect(repeatDates[1]).toBe('2025-02-28'); // 윤년 아님
-      expect(repeatDates[2]).toBe('2026-02-28'); // 윤년 아님
-      expect(repeatDates[3]).toBe('2027-02-28'); // 윤년 아님
-      expect(repeatDates[4]).toBe('2028-02-29'); // 윤년
+      // Then: 2월 29일이 있는 해(윤년)에만 생성되어야 함
+      expect(repeatDates).toHaveLength(2);
+      expect(repeatDates[0]).toBe('2024-02-29'); // 2024년 (윤년)
+      expect(repeatDates[1]).toBe('2028-02-29'); // 2028년 (윤년)
+      // 2025, 2026, 2027년은 2월 29일이 없으므로 건너뛰기
     });
   });
 
