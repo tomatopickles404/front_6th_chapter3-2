@@ -340,3 +340,50 @@ it('notificationTime을 10으로 하면 지정 시간 10분 전 알람 텍스트
 
   expect(screen.getByText('10분 후 기존 회의 일정이 시작됩니다.')).toBeInTheDocument();
 });
+
+describe('반복 일정 통합 기능', () => {
+  it('반복 일정 체크박스를 클릭하면 반복 설정 UI가 표시된다', async () => {
+    const { user } = setup(<App />);
+
+    // 반복 일정 체크박스 클릭
+    await user.click(screen.getByLabelText('반복 일정'));
+
+    // 반복 유형 선택 UI가 표시되어야 함
+    expect(screen.getByLabelText('반복 유형')).toBeInTheDocument();
+    expect(screen.getByLabelText('반복 간격')).toBeInTheDocument();
+    expect(screen.getByLabelText('반복 종료일')).toBeInTheDocument();
+  });
+
+  it('매일 반복 일정을 생성할 수 있다', async () => {
+    setupMockHandlerCreation();
+
+    const { user } = setup(<App />);
+
+    // 반복 일정 생성
+    await user.click(screen.getAllByText('일정 추가')[0]);
+
+    await user.type(screen.getByLabelText('제목'), '매일 운동');
+    await user.type(screen.getByLabelText('날짜'), '2025-01-01');
+    await user.type(screen.getByLabelText('시작 시간'), '06:00');
+    await user.type(screen.getByLabelText('종료 시간'), '07:00');
+    await user.type(screen.getByLabelText('설명'), '매일 아침 운동');
+    await user.type(screen.getByLabelText('위치'), '집');
+    await user.click(screen.getByLabelText('카테고리'));
+    await user.click(within(screen.getByLabelText('카테고리')).getByRole('combobox'));
+    await user.click(screen.getByRole('option', { name: '개인-option' }));
+
+    // 반복 설정
+    await user.click(screen.getByLabelText('반복 일정'));
+    await user.click(screen.getByLabelText('반복 유형'));
+    await user.click(screen.getByRole('option', { name: '매일' }));
+    await user.type(screen.getByLabelText('반복 종료일'), '2025-01-05');
+
+    await user.click(screen.getByTestId('event-submit-button'));
+
+    // 이벤트 리스트에서 반복 정보 확인
+    const eventList = within(screen.getByTestId('event-list'));
+    expect(eventList.getByText('매일 운동')).toBeInTheDocument();
+    expect(eventList.getByText(/반복: 매일/)).toBeInTheDocument();
+    expect(eventList.getByText(/종료: 2025-01-05/)).toBeInTheDocument();
+  });
+});
